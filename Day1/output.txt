@@ -1,0 +1,4 @@
+Begin Day 1
+Current working directory: "/home/chunix/git_projects/advent-of-code-2023"
+/home/chunix/git_projects/advent-of-code-2023/Day1/input.txt
+54968
