@@ -14,7 +14,7 @@
       runner = pkgs.writeShellScriptBin "run" (builtins.readFile ./script.sh);
     in {
       devShells.default = pkgs.mkShell.override {stdenv = pkgs.clangStdenv;} rec {
-        # buildInputs = [pkgs.bashInteractive pythonEnv pkgs.nodejs pkgs.zlib pkgs.gcc13];
+        nativeBuildInputs = with pkgs; [pkg-config cmake];
         #.https://gist.github.com/fufexan/2e7020d05ff940c255d74d5c5e712815
         packages = with pkgs; [
           gnumake
@@ -27,6 +27,7 @@
 
           # fix headers not found
           clang-tools
+          boost
 
           # LSP and compiler
           llvm.libstdcxxClang

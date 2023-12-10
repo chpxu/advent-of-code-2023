@@ -1,14 +1,15 @@
+#pragma once
 #include <iostream>
 #include <vector>
-#include <cctype> // for std::isdigit
-
-std::vector<int> extractNumbersFromSubstrings(const std::string &input)
+#include <sstream>
+#include <string>
+std::vector<int> getIntegersFromString(std::string line)
 {
   std::vector<int> numbers;
 
   // Iterate through the input string
   std::string numberStr;
-  for (char c : input)
+  for (char c : line)
   {
     if (std::isdigit(c))
     {
@@ -31,17 +32,25 @@ std::vector<int> extractNumbersFromSubstrings(const std::string &input)
   return numbers;
 }
 
-int main()
+std::vector<int> findCommonElements(const std::vector<int> &vec1, const std::vector<int> &vec2)
 {
-  std::string text = " 12  76 ";
-  std::vector<int> extractedNumbers = extractNumbersFromSubstrings(text);
+  std::unordered_set<int> set1(vec1.begin(), vec1.end());
+  std::vector<int> commonElements;
 
-  std::cout << "Extracted numbers from the substrings:" << std::endl;
-  for (int num : extractedNumbers)
+  for (int num : vec2)
   {
-    std::cout << num << " ";
+    if (set1.find(num) != set1.end())
+    {
+      commonElements.push_back(num);
+    }
+    else
+    {
+      continue;
+    }
   }
-  std::cout << std::endl;
-
-  return 0;
+  if (commonElements.empty())
+  {
+    commonElements.push_back(0);
+  }
+  return commonElements;
 }

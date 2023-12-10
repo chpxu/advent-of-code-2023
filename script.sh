@@ -6,11 +6,11 @@ day=$1
 path="Day$day/day$day"
 
 if [ "$2" = "compile" ]; then
-  clang++ -Wall -Werror -std=c++17 "$path.cpp" -o "$path.o"
+  clang++ -g -Wall -Werror -std=c++17 "$path.cpp" -o "$path.o"
 elif [ "$2" = "run" ]; then
   ./"$path".o > "Day$day/output.txt"
 elif [ "$2" = "valgrind" ]; then
-  valgrind --keep-debuginfo=yes --leak-check=full --show-leak-kinds=all --track-origins=yes -s "./$path.o" > "valgrind-$path.txt"
+  valgrind --keep-debuginfo=yes --leak-check=full --show-leak-kinds=all --track-origins=yes -s "./$path.o"
 else
   echo "COMMAND NOT FOUND"
 fi

@@ -68,3 +68,11 @@ int main()
   return 0;
   // POGGING
 }
+
+// LEARNT:
+/* *
+ * For loops, foreach loops
+ * vector struct: declaration and element access
+ * string manipulation
+ * ifstream and reading input from gile
+ */
