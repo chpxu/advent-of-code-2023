@@ -1,132 +1,149 @@
 #include <string>
-#include <cstring>
-#include <iterator>
-#include <numeric>
-#include <sstream>
-#include <fstream>
 #include <iostream>
+#include <string>
+#include <fstream>
 #include <vector>
-#include <filesystem>
-#include <regex>
-#include <bits/stdc++.h>
-#include <boost/algorithm/string.hpp>
-#include <boost/regex.hpp>
-#include <cmath>
-#include "../includes/integer.h"
+#include <sstream>
+#include <iterator>
+#include <array>
+#include <cctype>
+#include "../includes/helper_string.h"
+#include <algorithm>
+long long sourceToDest(long long start, std::vector<std::vector<long long>> dest)
+{
+  for (std::vector<long long> row : dest)
+  {
+    // third/final index
+    long long x = row[2];
+    // second index
+    std::vector<long long> sourceRange;
+    // first index
+    std::vector<long long> destRange;
+    for (long long i = 0; i < x; i++)
+    {
+      sourceRange.push_back(row[1] + i);
+      destRange.push_back(row[0] + i);
+    }
+    auto elem = std::find(std::begin(sourceRange), std::end(sourceRange), start);
+    if (elem == sourceRange.end())
+    {
+      // If not present in the source array, return since it is
+      // in the kernel of this map
+      return start;
+    }
+    else
+    {
+      // If it does exist, get corresponding position in sourceRange
+      // Find its corresponding image in destRange and return in
+      long long index = elem - std::begin(sourceRange);
+      return destRange[index];
+    }
+  }
+  return start;
+}
 
 int main(int argc, char *argv[])
 {
-  int cumsum = 0;
-  // int currentCard = 1;
-  std::vector<int> sizes;
-  int totalNumberOfCards = 0;
-  std::filesystem::path currentPath = std::filesystem::current_path();
-  std::cout << "Current working directory: " << currentPath << std::endl;
-  currentPath += "/Day5/input.txt";
-  std::ifstream inputFile(currentPath.string(), std::ifstream::in);
-
-  const std::regex card("Card\\s+([0-9]+):\\s");
+  std::string currentPath = "/home/chunix/git_projects/advent-of-code-2023/Day5/input.txt";
+  std::ifstream inputFile(currentPath, std::ifstream::in);
   if (!inputFile.is_open())
   {
     std::cerr << "Unable to open file!" << std::endl;
     return 1;
   }
-
+  // Extract the line containing seeds.
+  std::string seed_line;
+  getline(inputFile, seed_line);
+  std::vector<long long> listOfSeeds = extractIntegers(seed_line);
   std::string line;
-  std::string delimiter = "|";
-  const char *space = "\\s+";
-  boost::regex multipleSpaces;
-  multipleSpaces.assign(space);
-
-  std::vector<std::vector<int>> numberOfCards;
-  // Dynamically get total number of cards
+  std::vector<std::vector<long long>> seedToSoilMap;
+  std::vector<std::vector<long long>> soilToFertilizerMap;
+  std::vector<std::vector<long long>> fertilizerToWaterMap;
+  std::vector<std::vector<long long>> waterToLightMap;
+  std::vector<std::vector<long long>> lightToTemperatureMap;
+  std::vector<std::vector<long long>> temperatureToHumidityMap;
+  std::vector<std::vector<long long>> humidityToLocationMap;
   while (getline(inputFile, line))
   {
-    ++totalNumberOfCards;
-  }
-  for (int i = 1; i <= totalNumberOfCards; ++i)
-  {
-    std::vector<int> temp = {i, 1};
-    numberOfCards.push_back(temp);
-  }
-  inputFile.clear();
-  inputFile.seekg(0, std::ios::beg);
-
-  while (getline(inputFile, line))
-  {
-    std::stringstream removed;
-    std::regex_replace(std::ostream_iterator<char>(removed), line.begin(), line.end(), card, "");
-    std::string cardNumbers = removed.str();
-    // std::cout << removed.str() << std::endl;
-    // Finds numbers up to |
-    std::string winningNumbers = cardNumbers.substr(0, cardNumbers.find(delimiter));
-    // Finds numbers after |
-    std::string currentNumbers = cardNumbers.substr(cardNumbers.find(delimiter) + 2);
-
-    std::vector<int> listOfWinningNumbers(getIntegersFromString(winningNumbers));
-    std::vector<int> listOfCurrentNumbers(getIntegersFromString(currentNumbers));
-    std::sort(listOfCurrentNumbers.begin(), listOfCurrentNumbers.end());
-    std::sort(listOfWinningNumbers.begin(), listOfWinningNumbers.end());
-
-    std::cout << std::endl;
-    std::vector<int> commonNumbers = findCommonElements(listOfCurrentNumbers, listOfWinningNumbers);
-    int size = commonNumbers.size();
-    // sizes is vector of number of matches for each card
-    sizes.push_back(size);
-
-    for (int j = 0; j < size; j++)
+    if (line.find("seed-to-soil map:") != std::string::npos)
     {
-      std::cout << commonNumbers[j] << " ";
+      while (std::getline(inputFile, line) && line != "")
+      {
+        seedToSoilMap.push_back(extractIntegers(line));
+      }
+    }
+    else if (line.find("soil-to-fertilizer map:") != std::string::npos)
+    {
+      while (std::getline(inputFile, line) && line != "")
+      {
+        soilToFertilizerMap.push_back(extractIntegers(line));
+      }
+    }
+    else if (line.find("fertilizer-to-water map:") != std::string::npos)
+    {
+      while (std::getline(inputFile, line) && line != "")
+      {
+        fertilizerToWaterMap.push_back(extractIntegers(line));
+      }
+    }
+    else if (line.find("water-to-light map:") != std::string::npos)
+    {
+      while (std::getline(inputFile, line) && line != "")
+      {
+        waterToLightMap.push_back(extractIntegers(line));
+      }
     }
 
-    // Don't add cards with no matching numbers, indicated by only 0s
-    if (!(commonNumbers[0] == 0 && size == 1))
+    else if (line.find("light-to-temperature map:") != std::string::npos)
     {
-      cumsum += pow(2, size - 1);
-      // for (int i = 1; i <= size; i++)
-      // {
-      //   numberOfCards[currentCard + i][0] += 1;
-      // }
+      while (std::getline(inputFile, line) && line != "")
+      {
+        lightToTemperatureMap.push_back(extractIntegers(line));
+      }
     }
-    // ++currentCard;
-  }
-  // std::vector<int> wonCopies(numberOfCards.size(), 0);
-
-  for (size_t i = 0; i < numberOfCards.size() - 1; i++)
-  {
-    // int cardID = numberOfCards[i][0];
-    // int matches = numberOfCards[i][1];
-    // int start = i + 1;
-    // int count = matches;
-    auto limit = std::min(numberOfCards.size(), i + sizes[i] + 1);
-    for (size_t j = i + 1; j < limit; j++)
+    else if (line.find("temperature-to-humidity map:") != std::string::npos)
     {
-      // if (sizes[i])
-      numberOfCards[j][1] += sizes[i];
-      sizes[j] += 1;
+      while (std::getline(inputFile, line) && line != "")
+      {
+        temperatureToHumidityMap.push_back(extractIntegers(line));
+      }
     }
-
-    // if (start + count > numberOfCards.size())
-    // {
-    //   count = numberOfCards.size() - start;
-    // }
-
-    // for (int j = start; j < start + count; ++j)
-    // {
-    //   ++wonCopies[j];
-    // }
+    else if (line.find("humidity-to-location map:") != std::string::npos)
+    {
+      while (std::getline(inputFile, line) && line != "")
+      {
+        humidityToLocationMap.push_back(extractIntegers(line));
+      }
+    }
   }
-
-  std::cout << cumsum << std::endl;
-  for (int i = 0; i < numberOfCards.size(); i++)
+  for (std::vector<long long> row : humidityToLocationMap)
   {
-    totalNumberOfCards += numberOfCards[i][1];
+    for (long long num : row)
+    {
+      std::cout << num << " ";
+      std::cout << std::endl;
+    }
   }
-  // for (int i = 0; i < numberOfCards.size(); i++)
-  // {
-  //   std::cout << numberOfCards[i][1] << std::endl;
-  // }
-  std::cout << totalNumberOfCards << std::endl;
   inputFile.close();
+
+  /*
+  Now to pass each seed through sourceToDest througb each category (effectively function composition)
+  */
+  std::vector<long long> locationNumbers;
+  // long long locationSum = 0;
+  for (long long num : listOfSeeds)
+  {
+    long long singleSeedToSoil = sourceToDest(num, seedToSoilMap);
+    long long singleSoilToFert = sourceToDest(singleSeedToSoil, soilToFertilizerMap);
+    long long singlesFertToWater = sourceToDest(singleSoilToFert, fertilizerToWaterMap);
+    long long singleWaterToLight = sourceToDest(singlesFertToWater, waterToLightMap);
+    long long singleLightToTemp = sourceToDest(singleWaterToLight, lightToTemperatureMap);
+    long long singleTempToHumidity = sourceToDest(singleLightToTemp, temperatureToHumidityMap);
+    long long singleHumidityToLoc = sourceToDest(singleTempToHumidity, humidityToLocationMap);
+    locationNumbers.push_back(singleHumidityToLoc);
+  }
+  std::vector<long long>::iterator result = std::min_element(std::begin(locationNumbers), std::end(locationNumbers));
+  std::cout << *result << std::endl;
+  // free(result);
   return 0;
 }
